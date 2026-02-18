@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Section from '$lib/components/Section.svelte';
 	import type { PageProps } from './$types';
 	import { getPreferences, savePreferences } from './demo.remote';
 
@@ -29,8 +30,7 @@
 		<p class="text-sm text-slate-300">SSR rendered at: {data.renderedAt}</p>
 	</header>
 
-	<section class="space-y-3 rounded border border-slate-800 p-4">
-		<h2 class="font-medium">Current Preferences (remote query)</h2>
+	<Section title="Current Preferences (remote query)">
 		{#await getPreferences() then prefs}
 			<dl class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
 				<div class="rounded border border-slate-700 px-3 py-2">
@@ -45,10 +45,9 @@
 		{:catch}
 			<p class="text-sm text-red-400">Failed to load preferences.</p>
 		{/await}
-	</section>
+	</Section>
 
-	<section class="space-y-3 rounded border border-slate-800 p-4">
-		<h2 class="font-medium">Update Preferences (remote form)</h2>
+	<Section title="Update Preferences (remote form)">
 		<form
 			{...savePreferences.enhance(async ({ submit }) => {
 				submitError = null;
@@ -63,6 +62,7 @@
 					(savePreferences.fields.allIssues()?.length ?? 0) === 0 &&
 					!!savePreferences.result?.savedAt;
 				if (isSuccess) {
+					submitError = null;
 					await syncFormFieldsFromCookie();
 				}
 			})}
@@ -107,12 +107,12 @@
 		{#if savePreferences.result?.savedAt}
 			<p class="text-xs text-slate-400">Saved at: {savePreferences.result.savedAt}</p>
 		{/if}
-	</section>
+	</Section>
 
-	<section class="rounded border border-slate-800 p-4 text-xs text-slate-400">
+	<Section class="text-xs text-slate-400">
 		<p>storage: HttpOnly cookie (`demo_prefs`)</p>
 		<p>load: page metadata</p>
 		<p>query: `getPreferences`</p>
 		<p>form: `savePreferences`</p>
-	</section>
+	</Section>
 </main>

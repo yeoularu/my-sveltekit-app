@@ -19,23 +19,20 @@ function createDefaultPrefs(): Preferences {
 	return { ...DEFAULT_PREFS };
 }
 
+const nicknameSchema = v.pipe(
+	v.string(),
+	v.trim(),
+	v.minLength(NICKNAME_MIN_LENGTH, `Nickname must be at least ${NICKNAME_MIN_LENGTH} characters`),
+	v.maxLength(NICKNAME_MAX_LENGTH, `Nickname must be ${NICKNAME_MAX_LENGTH} characters or less`)
+);
+
 const storedPrefsSchema = v.object({
-	nickname: v.pipe(
-		v.string(),
-		v.trim(),
-		v.minLength(NICKNAME_MIN_LENGTH),
-		v.maxLength(NICKNAME_MAX_LENGTH)
-	),
+	nickname: nicknameSchema,
 	focusMode: v.boolean()
 });
 
 const savePrefsInput = v.object({
-	nickname: v.pipe(
-		v.string(),
-		v.trim(),
-		v.minLength(NICKNAME_MIN_LENGTH, `Nickname must be at least ${NICKNAME_MIN_LENGTH} characters`),
-		v.maxLength(NICKNAME_MAX_LENGTH, `Nickname must be ${NICKNAME_MAX_LENGTH} characters or less`)
-	),
+	nickname: nicknameSchema,
 	focusMode: v.optional(v.boolean(), false)
 });
 

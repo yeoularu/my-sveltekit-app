@@ -1,40 +1,49 @@
-# sv
+# my-sveltekit-app
 
 [![Deployed with Alchemy](https://alchemy.run/alchemy-badge.svg)](https://alchemy.run)
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+SvelteKit starter template with **Svelte 5**, **Tailwind CSS v4**, **Valibot**, and **Cloudflare Workers** deployment via [Alchemy](https://alchemy.run).
 
-## Creating a project
+Includes a Remote Functions demo showcasing `query` / `form` with HttpOnly cookie storage.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Tech Stack
+
+- **Framework** — SvelteKit + Svelte 5 (runes, remote functions)
+- **Styling** — Tailwind CSS v4
+- **Validation** — Valibot
+- **Deployment** — Cloudflare Workers (via Alchemy adapter)
+- **Tooling** — TypeScript strict, ESLint, Prettier, pnpm
+
+## Setup
 
 ```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+pnpm install
+cp .env.example .env
 ```
+
+Set `ALCHEMY_PASSWORD` in `.env`.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm dev
 ```
 
-## Building
-
-To create a production version of your app:
+## Building & Preview
 
 ```bash
-npm run build
+pnpm build
+pnpm preview
 ```
 
-You can preview the production build with `npm run preview`.
+## Deploying
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+pnpm deploy
+```
+
+Deploys to Cloudflare Workers via Alchemy. To tear down:
+
+```bash
+pnpm destroy
+```

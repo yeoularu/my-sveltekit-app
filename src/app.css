@@ -3,12 +3,14 @@
 @layer base {
 	:root {
 		color-scheme: dark;
+		--color-bg: oklch(12.9% 0.042 264.695);
+		--color-text: oklch(96.8% 0.007 247.896);
 	}
 
 	html,
 	body {
 		min-height: 100%;
-		background-color: oklch(12.9% 0.042 264.695);
-		color: oklch(96.8% 0.007 247.896);
+		background-color: var(--color-bg);
+		color: var(--color-text);
 	}
 }
