@@ -1,0 +1,14 @@
+@import 'tailwindcss';
+
+@layer base {
+	:root {
+		color-scheme: dark;
+	}
+
+	html,
+	body {
+		min-height: 100%;
+		background-color: oklch(12.9% 0.042 264.695);
+		color: oklch(96.8% 0.007 247.896);
+	}
+}
