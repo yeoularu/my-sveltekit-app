@@ -1,44 +1,118 @@
 <script lang="ts">
-	import { doubleNumber } from './data.remote';
+	import { onMount } from 'svelte';
+	import type { PageProps } from './$types';
+	import { getPreferences, savePreferences } from './demo.remote';
 
-	let { data } = $props();
+	let { data }: PageProps = $props();
+	let submitError = $state<string | null>(null);
+
+	async function syncFormFieldsFromCookie() {
+		try {
+			const prefs = await getPreferences();
+			savePreferences.fields.set({
+				nickname: prefs.nickname,
+				focusMode: prefs.focusMode
+			});
+		} catch (error) {
+			console.warn('Failed to sync form fields from cookie', error);
+		}
+	}
+
+	onMount(() => {
+		void syncFormFieldsFromCookie();
+	});
 </script>
 
-<main class="mx-auto min-h-svh max-w-2xl space-y-4 p-6">
-	<h1 class="text-xl font-semibold">Simple Load + Remote Form</h1>
+<main class="mx-auto min-h-svh max-w-3xl space-y-6 p-6 sm:p-8">
+	<header class="space-y-1">
+		<h1 class="text-2xl font-semibold">Load + Remote Functions: HttpOnly Cookie Demo</h1>
+		<p class="text-sm text-slate-300">SSR rendered at: {data.renderedAt}</p>
+	</header>
 
-	<section class="space-y-1 rounded border border-slate-800 p-4">
-		<h2 class="font-medium">1) +page.server.ts (load)</h2>
-		<p class="text-sm">serverTime: {data.serverTime}</p>
+	<section class="space-y-3 rounded border border-slate-800 p-4">
+		<h2 class="font-medium">Current Preferences (remote query)</h2>
+		{#await getPreferences() then prefs}
+			<dl class="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+				<div class="rounded border border-slate-700 px-3 py-2">
+					<dt class="text-xs text-slate-400">nickname</dt>
+					<dd>{prefs.nickname}</dd>
+				</div>
+				<div class="rounded border border-slate-700 px-3 py-2">
+					<dt class="text-xs text-slate-400">focusMode</dt>
+					<dd>{prefs.focusMode ? 'on' : 'off'}</dd>
+				</div>
+			</dl>
+		{:catch}
+			<p class="text-sm text-red-400">Failed to load preferences.</p>
+		{/await}
 	</section>
 
 	<section class="space-y-3 rounded border border-slate-800 p-4">
-		<h2 class="font-medium">2) data.remote.ts (form)</h2>
+		<h2 class="font-medium">Update Preferences (remote form)</h2>
+		<form
+			{...savePreferences.enhance(async ({ submit }) => {
+				submitError = null;
+				try {
+					await submit().updates(getPreferences());
+				} catch (error) {
+					console.warn('Failed to save preferences', error);
+					submitError = 'Failed to save preferences. Please try again.';
+					return;
+				}
+				const isSuccess =
+					(savePreferences.fields.allIssues()?.length ?? 0) === 0 &&
+					!!savePreferences.result?.savedAt;
+				if (isSuccess) {
+					await syncFormFieldsFromCookie();
+				}
+			})}
+			class="space-y-3"
+		>
+			<label class="block space-y-1">
+				<span class="text-sm">Nickname</span>
+				<input
+					{...savePreferences.fields.nickname.as('text')}
+					class="w-full rounded border border-slate-700 bg-transparent px-3 py-2"
+					placeholder="at least 2 characters"
+					disabled={!!savePreferences.pending}
+				/>
+			</label>
 
-		<form {...doubleNumber} class="flex items-center gap-2">
-			<input
-				{...doubleNumber.fields.value.as('number')}
-				class="w-20 rounded border border-slate-700 px-2 py-1"
-				disabled={!!doubleNumber.pending}
-			/>
-			<button
-				class="rounded border border-slate-700 px-2 py-1 text-sm disabled:opacity-50"
-				disabled={!!doubleNumber.pending}
-			>
-				{doubleNumber.pending ? 'Running...' : 'Double it'}
-			</button>
+			{#each savePreferences.fields.nickname.issues() as issue (issue.message)}
+				<p class="text-sm text-red-400">{issue.message}</p>
+			{/each}
+
+			{#if submitError}
+				<p class="text-sm text-red-400">{submitError}</p>
+			{/if}
+
+			<label class="inline-flex items-center gap-2 text-sm">
+				<input
+					{...savePreferences.fields.focusMode.as('checkbox')}
+					disabled={!!savePreferences.pending}
+				/>
+				<span>Enable focus mode</span>
+			</label>
+
+			<div>
+				<button
+					class="rounded border border-slate-700 px-3 py-2 text-sm disabled:opacity-50"
+					disabled={!!savePreferences.pending}
+				>
+					{savePreferences.pending ? 'Saving...' : 'Save'}
+				</button>
+			</div>
 		</form>
 
-		{#each doubleNumber.fields.value.issues() as issue (issue.message)}
-			<p class="text-red-400">{issue.message}</p>
-		{/each}
-
-		{#if doubleNumber.result}
-			<div class="space-y-1 text-sm">
-				<p>input: {doubleNumber.result.input}</p>
-				<p>doubled: {doubleNumber.result.doubled}</p>
-				<p>processedAt: {doubleNumber.result.processedAt}</p>
-			</div>
+		{#if savePreferences.result?.savedAt}
+			<p class="text-xs text-slate-400">Saved at: {savePreferences.result.savedAt}</p>
 		{/if}
+	</section>
+
+	<section class="rounded border border-slate-800 p-4 text-xs text-slate-400">
+		<p>storage: HttpOnly cookie (`demo_prefs`)</p>
+		<p>load: page metadata</p>
+		<p>query: `getPreferences`</p>
+		<p>form: `savePreferences`</p>
 	</section>
 </main>

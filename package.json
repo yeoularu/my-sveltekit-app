@@ -3,6 +3,9 @@
 	"name": "my-sveltekit-app",
 	"private": true,
 	"version": "0.0.1",
+	"engines": {
+		"node": ">=22"
+	},
 	"scripts": {
 		"build": "vite build",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -16,7 +19,7 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "^4.20260217.0",
+		"@cloudflare/workers-types": "^4.20260218.0",
 		"@eslint/compat": "^2.0.2",
 		"@eslint/js": "9",
 		"@sveltejs/adapter-auto": "^7.0.1",
@@ -30,11 +33,11 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.15.0",
 		"globals": "^17.3.0",
-		"miniflare": "^4.20260212.0",
+		"miniflare": "^4.20260217.0",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.4.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
-		"svelte": "^5.51.2",
+		"svelte": "^5.51.3",
 		"svelte-check": "^4.4.0",
 		"tailwindcss": "^4.1.18",
 		"typescript": "^5.9.3",
