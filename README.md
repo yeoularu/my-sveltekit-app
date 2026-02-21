@@ -9,16 +9,16 @@ Opinionated SvelteKit starter template for Cloudflare Workers with:
 - Better Auth (username + admin plugin)
 - Cloudflare D1 + Drizzle ORM
 - Valibot validation at server boundaries
+- Vitest (unit + component)
 - Playwright + playwright-bdd
 - Deployment via Alchemy
 
 ## Included Features
 
 - **Auth**: Better Auth mounted at `/api/auth` with username support
-- **Admin**: Better Auth admin plugin + `/admin` user management page
-- **Bootstrap admin**: first created user is auto-promoted to `admin`
-- **Optional fixed admins**: `ADMIN_USER_IDS` (comma-separated user IDs)
+- **Admin route**: `/admin` placeholder page
 - **Validation**: Valibot used for untrusted server input
+- **Unit + Component tests**: Vitest with split folders/commands (`tests/unit`, `tests/component`)
 - **E2E**: plain Playwright tests + BDD (`.feature` + step definitions)
 
 ## Prerequisites
@@ -37,7 +37,6 @@ Set values in `.env`:
 
 - `ALCHEMY_PASSWORD` (required)
 - `BETTER_AUTH_SECRET` (required, generate with `pnpm exec better-auth secret`)
-- `ADMIN_USER_IDS` (optional CSV: `id1,id2,id3`)
 
 Then run:
 
@@ -49,11 +48,25 @@ pnpm dev
 
 - Sign-in UI is available at `/auth/sign-in` and uses username + password.
 - Admin UI is available at `/admin`.
-- `/admin` is protected with Better Auth permission checks (`user:list`, `user:create`).
-- First-ever user in the DB is assigned role `admin` automatically.
-- You can also force admin access for known user IDs via `ADMIN_USER_IDS`.
 
 `baseURL` is derived from each request origin automatically (dev/prod host).
+
+## Unit + Component Testing
+
+Vitest is configured with separate folders and commands:
+
+- `unit`: Node environment (`tests/unit/**`)
+- `component`: jsdom + Testing Library (`tests/component/**`, file-level jsdom annotation)
+
+Run tests:
+
+```bash
+pnpm test
+pnpm test:unit
+pnpm test:component
+pnpm test:watch
+pnpm test:coverage
+```
 
 ## BDD + E2E Testing
 

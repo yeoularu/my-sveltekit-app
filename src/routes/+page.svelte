@@ -26,9 +26,17 @@
 	{#if !$session.isPending && $session.data}
 		<a
 			class="inline-flex w-fit items-center rounded-md border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800"
-			href={resolve('/admin')}
+			href={resolve('/settings')}
 		>
-			Open admin
+			Open settings
 		</a>
+		{#if $session.data.user.role === 'admin'}
+			<a
+				class="inline-flex w-fit items-center rounded-md border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800"
+				href={resolve('/admin')}
+			>
+				Open admin
+			</a>
+		{/if}
 	{/if}
 </main>

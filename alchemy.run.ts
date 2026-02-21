@@ -11,8 +11,7 @@ const database = await D1Database('database', {
 export const worker = await SvelteKit('website', {
 	bindings: {
 		DB: database,
-		BETTER_AUTH_SECRET: alchemy.secret.env('BETTER_AUTH_SECRET'),
-		ADMIN_USER_IDS: alchemy.env('ADMIN_USER_IDS', '')
+		BETTER_AUTH_SECRET: alchemy.secret.env('BETTER_AUTH_SECRET')
 	},
 	observability: {
 		enabled: true

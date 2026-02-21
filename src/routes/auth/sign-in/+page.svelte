@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import { authClient } from '$lib/auth-client';
 
 	const session = authClient.useSession();
@@ -14,6 +15,15 @@
 
 	function getErrorMessage(error: unknown, fallback: string): string {
 		return error instanceof Error ? error.message : fallback;
+	}
+
+	function getSafeCallbackPath(): string {
+		const next = page.url.searchParams.get('next');
+		if (next && next.startsWith('/') && !next.startsWith('//')) {
+			return next;
+		}
+
+		return resolve('/');
 	}
 
 	async function signInWithUsername(): Promise<void> {
@@ -31,7 +41,7 @@
 				username: signInUsername,
 				password: signInPassword,
 				rememberMe: true,
-				callbackURL: resolve('/')
+				callbackURL: getSafeCallbackPath()
 			});
 
 			if (result.error) {

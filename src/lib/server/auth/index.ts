@@ -5,18 +5,11 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin, username } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
-import { count } from 'drizzle-orm';
+import { isValidUsername, USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from '$lib/auth-policy';
 import { createDb } from '$lib/server/db/client';
 import { schema } from '$lib/server/db/schema';
 
 const AUTH_BASE_PATH = '/api/auth';
-const ADMIN_USER_IDS_SEPARATOR = ',';
-const ADMIN_ROLE = 'admin';
-
-async function isFirstUser(db: ReturnType<typeof createDb>): Promise<boolean> {
-	const [result] = await db.select({ count: count() }).from(schema.user);
-	return (result?.count ?? 0) === 0;
-}
 
 function getRequiredValue(value: string | undefined, name: string): string {
 	if (!value) {
@@ -35,15 +28,6 @@ function getEnv(event: RequestEvent): Env {
 	return platformEnv;
 }
 
-function parseAdminUserIds(value: string | undefined): string[] {
-	if (!value) return [];
-
-	return value
-		.split(ADMIN_USER_IDS_SEPARATOR)
-		.map((id) => id.trim())
-		.filter((id) => id.length > 0);
-}
-
 function buildAuth(env: Env, baseURL: string) {
 	const db = createDb(env.DB);
 
@@ -59,29 +43,13 @@ function buildAuth(env: Env, baseURL: string) {
 			enabled: true,
 			disableSignUp: false
 		},
-		databaseHooks: {
-			user: {
-				create: {
-					before: async (user) => {
-						if (await isFirstUser(db)) {
-							return {
-								data: {
-									...user,
-									role: ADMIN_ROLE
-								}
-							};
-						}
-
-						return { data: user };
-					}
-				}
-			}
-		},
 		plugins: [
-			username(),
-			admin({
-				adminUserIds: parseAdminUserIds(env.ADMIN_USER_IDS)
+			username({
+				minUsernameLength: USERNAME_MIN_LENGTH,
+				maxUsernameLength: USERNAME_MAX_LENGTH,
+				usernameValidator: isValidUsername
 			}),
+			admin(),
 			sveltekitCookies(() => getRequestEvent())
 		]
 	});

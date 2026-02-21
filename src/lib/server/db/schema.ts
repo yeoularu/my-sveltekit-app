@@ -79,9 +79,17 @@ export const verification = sqliteTable(
 	(table) => [uniqueIndex('verification_identifier_value_unique').on(table.identifier, table.value)]
 );
 
+export const appConfig = sqliteTable('app_config', {
+	key: text('key').primaryKey(),
+	value: text('value').notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull().default(nowMs),
+	updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull().default(nowMs)
+});
+
 export const schema = {
 	user,
 	session,
 	account,
-	verification
+	verification,
+	appConfig
 };

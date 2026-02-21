@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tech Lead"
+  short_description: "Review and deliver BDD implementations"
+  default_prompt: "Review product Gherkin for gaps, produce independent tests, and implement verified SvelteKit/Valibot code."
