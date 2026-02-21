@@ -1,5 +1,8 @@
 import type { Handle, HandleServerError, HandleValidationError } from '@sveltejs/kit';
+import { building } from '$app/environment';
+import { isAuthPath, svelteKitHandler } from 'better-auth/svelte-kit';
 import { createAppError, createErrorId, safeJsonStringify, serializeError } from '$lib/error';
+import { getAuthFromEvent } from '$lib/server/auth';
 
 const securityHeaders: Record<string, string> = {
 	'X-Frame-Options': 'DENY',
@@ -10,7 +13,37 @@ const securityHeaders: Record<string, string> = {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const response = await resolve(event);
+	event.locals.auth = undefined;
+	event.locals.session = null;
+	event.locals.user = null;
+
+	const platformEnv = event.platform?.env;
+	const canUseAuth = !building && !!platformEnv?.DB && !!platformEnv?.BETTER_AUTH_SECRET;
+
+	let response: Response;
+
+	if (canUseAuth) {
+		const auth = getAuthFromEvent(event);
+		event.locals.auth = auth;
+
+		const authRequest = isAuthPath(event.url.toString(), auth.options);
+		if (!authRequest) {
+			const session = await auth.api.getSession({
+				headers: event.request.headers
+			});
+			event.locals.session = session?.session ?? null;
+			event.locals.user = session?.user ?? null;
+		}
+
+		response = await svelteKitHandler({
+			auth,
+			event,
+			resolve,
+			building
+		});
+	} else {
+		response = await resolve(event);
+	}
 
 	for (const [key, value] of Object.entries(securityHeaders)) {
 		response.headers.set(key, value);

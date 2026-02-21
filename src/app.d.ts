@@ -6,6 +6,10 @@ import type {
 	IncomingRequestCfProperties,
 	ExecutionContext
 } from '@cloudflare/workers-types';
+import type { getAuth } from '$lib/server/auth';
+
+type AppAuth = ReturnType<typeof getAuth>;
+type SessionPayload = AppAuth['$Infer']['Session'];
 
 declare global {
 	namespace App {
@@ -14,7 +18,11 @@ declare global {
 			code?: string;
 			id?: string;
 		}
-		// interface Locals {}
+		interface Locals {
+			auth: AppAuth | undefined;
+			session: SessionPayload['session'] | null;
+			user: SessionPayload['user'] | null;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		interface Platform {

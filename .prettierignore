@@ -7,3 +7,8 @@ bun.lockb
 
 # Miscellaneous
 /static/
+.agents/
+.alchemy/
+.svelte-kit/
+test-results/
+drizzle/**/snapshot.json
