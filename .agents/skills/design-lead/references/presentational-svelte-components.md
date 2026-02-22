@@ -8,7 +8,12 @@ Build reusable Svelte 5 UI components that express product behavior visually whi
 
 - Keep components presentational: no database access, no direct API calls, no server action wiring.
 - Accept data and flags through `$props()` only.
-- Emit interactions strictly through typed callback props (e.g., `onclick`, `onsubmit`). For data mutations, build standard HTML `<form>` elements but prevent default submission and invoke your `onsubmit` callback with the gathered data.
+- Keep contract ownership explicit:
+  - `design-lead` defines `UIProps` and `UIEvents` for visual behavior.
+  - `tech-lead` maps domain contracts into `UIProps` via adapters.
+- Emit interactions through typed event surfaces with two valid form integration modes:
+  - **Mode A (Callback-first):** Emit typed callbacks (e.g., `onclick`, `onsubmit`) and call `event.preventDefault()` in the component.
+  - **Mode B (Progressive form wiring):** Accept form attributes/injections from parent wiring and spread them onto `<form>` while keeping component business-agnostic.
 - Keep business decisions outside the component; render only the state provided.
 
 ## Svelte 5 Patterns
@@ -22,7 +27,9 @@ Build reusable Svelte 5 UI components that express product behavior visually whi
 
 - Support explicit visual states via props: `loading`, `disabled`, `error`, `success`, and `empty`.
 - **Interactions:** Expose deterministic event callback props for user intent (e.g., `onretry`, `ondismiss`, `onchange`).
-- **Data Submission:** Always use standard HTML `<form>` elements to preserve browser autofill and accessibility. However, **never expose `action` props**. Instead, intercept the submission (`event.preventDefault()`) and emit a strictly-typed `onsubmit` callback containing the form data. This forces `tech-lead` to use type-safe Remote Functions rather than untyped SvelteKit Form Actions.
+- **Data Submission:** Always use standard HTML `<form>` elements to preserve browser autofill and accessibility.
+  - In Mode A, intercept submit and emit a typed `onsubmit` callback with parsed form data.
+  - In Mode B, allow parent-injected progressive form wiring while preserving the component's presentational boundary.
 - Keep naming stable and scenario-aligned so Tech Lead can wire behavior without ambiguity.
 
 ## Tailwind v4 Styling Practices
@@ -31,11 +38,14 @@ Build reusable Svelte 5 UI components that express product behavior visually whi
 - Keep class composition readable and grouped by concern (layout, typography, color, interaction).
 - Include focus-visible and reduced-motion-safe styles by default.
 - Keep dark/light theming consistent if the system supports both.
+- In tests, assert critical token decisions (brand, severity, hierarchy) rather than brittle full class-string equality.
 
 ## Test-Driven Design (TDD) as Documentation
 
 - Vitest and `@testing-library/svelte` test suites serve as the single source of truth for design specifications.
-- Write tests that explicitly assert the presence of specific Tailwind tokens or DOM changes to document your visual state decisions.
+- Co-locate component design tests next to components using `*.design.test.ts`.
+- Use `jsdom` for component DOM tests.
+- Write tests that assert observable behavior first (a11y roles, disabled/loading behavior, error visibility, keyboard flows), then critical token decisions.
 - Do not test backend logic or API responses; mock interactions and verify visual feedback.
 
 ### Example Design Spec Test:
@@ -65,7 +75,9 @@ describe('Design Specs: Component', () => {
 
 ## Handoff Checklist
 
-- Design states and token policies are documented as passing UI component tests (`*.test.ts`).
+- Design states and token policies are documented as passing UI component tests (`*.design.test.ts`).
+- `UIProps` and `UIEvents` are documented in a contract file (`*.contract.ts`).
 - Prop and event API is clear and deterministic.
 - Accessibility attributes and keyboard paths validated.
+- Form integration mode (Mode A or Mode B) is explicitly documented.
 - No backend coupling introduced in presentational layers.

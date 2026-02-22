@@ -21,12 +21,9 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"test": "vitest run",
-		"test:component": "vitest run tests/component",
-		"test:coverage": "vitest run --coverage",
-		"test:unit": "vitest run tests/unit",
 		"test:watch": "vitest",
-		"test:e2e": "pnpm bddgen && playwright test",
-		"test:e2e:ui": "pnpm bddgen && playwright test --ui"
+		"e2e": "pnpm bddgen && playwright test",
+		"e2e:ui": "pnpm bddgen && playwright test --ui"
 	},
 	"devDependencies": {
 		"@better-auth/cli": "^1.4.18",

@@ -8,9 +8,24 @@ Use this guide to keep product-facing scenarios clear, declarative, and directly
 
 - Write behavior in business language that domain stakeholders use daily.
 - Describe what outcome the user gets, not how UI controls are manipulated.
-- Keep one core behavior per scenario.
-- Make outcomes observable so they can be validated in automation.
-- Keep steps concise and specific; avoid overloaded or ambiguous phrasing.
+- Restrict each scenario to one core behavior.
+- Prefer `Rule` to group scenarios by shared business policy when one policy governs multiple scenarios.
+- Keep acceptance criteria observable and testable.
+- Explicitly define 'Sad Path' scenarios (e.g., error states, empty states, loading states) in addition to normal 'Happy Path' flows.
+
+## Rule and Scenario Organization
+
+Use the `Rule` keyword to declare business policies or constraints explicitly before the scenarios that test them when it improves clarity. This serves as in-file documentation and groups related test cases logically.
+
+Example:
+
+```gherkin
+Rule: Password length security policy
+  Passwords must be exactly between 8 and 100 characters in length.
+
+  Scenario Outline: Password length validation
+    # ...
+```
 
 ## Given-When-Then Basics
 
@@ -49,6 +64,7 @@ Use `Scenario Outline` when one behavior is exercised with multiple example valu
 - Keep placeholders business-readable.
 - Use examples to show meaningful boundary or policy variations.
 - Do not mix unrelated behaviors in one outline.
+- Use plain `Scenario` when there is only one concrete case.
 
 Example:
 
@@ -69,7 +85,7 @@ Scenario Outline: Shipping fee by membership tier
 - Treat data limits (e.g., minimum length, required fields) as **Business Rules**, not UI validations.
 - Do NOT write imperative, low-level UI validation steps (e.g., `When the user types 7 characters` or `Then the max-length becomes 8`).
 - Express constraints declaratively, focusing on the business outcome.
-- Use `Scenario Outline` with an `Examples` table to clearly document boundary conditions and thresholds without cluttering the scenario syntax.
+- Use `Scenario Outline` with an `Examples` table to document boundary conditions and thresholds when multiple data rows validate the same behavior.
 
 Example:
 
@@ -93,3 +109,9 @@ Scenario Outline: Password length security policy
 - Preconditions are complete and minimal.
 - Outcome is measurable and unambiguous.
 - Technical details (tables, endpoints, internal services) are absent unless explicitly part of domain language.
+
+## Official Syntax Source
+
+- The canonical source for grammar and keyword validity is the official Cucumber Gherkin reference:
+  - https://cucumber.io/docs/gherkin/reference
+- Use this local guide for team conventions, and defer to the official reference for parser-level syntax questions.
