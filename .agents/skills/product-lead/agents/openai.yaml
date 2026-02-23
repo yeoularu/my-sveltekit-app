@@ -1,4 +1,0 @@
-interface:
-  display_name: "Product Lead"
-  short_description: "Drive declarative BDD product specs"
-  default_prompt: "Lead product discovery and define declarative Gherkin scenarios using business-domain language."
